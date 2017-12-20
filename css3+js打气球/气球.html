@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset = "UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        body {
+            background-color: #ccc;
+            overflow: hidden;
+        }
+        .qiqiu,
+		.a {
+            width: 160px;
+            height: 160px;
+            background: #faf9f9;
+            border-radius: 160px 160px 64px 160px;
+            /* 水平方向  垂直方向  模糊距离  阴影的尺寸  颜色  内外边距*/
+            box-shadow: -8px -8px 80px -8px #873940 inset;
+            transform: rotate(45deg);
+            position: absolute;
+        }
+        .qiqiu:after
+		,.a:after {
+            position: absolute;
+            content: "";
+            border: 8px solid transparent;
+            border-right-color:#873940;
+            border-radius: 50%;
+            right: 0;
+            bottom: 0;
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body>
+	<!-- <div class="a"></div> -->
+</body>
+</html>
+<script>
+    var qiqius = [];
+    var timeId = null;
+    init();
+    //初始化气球
+    function  init(){
+//        var fragment = document.createDocumentFragment();
+        for (var i = 0; i < 15; i++) {
+            var qiqiu = document.createElement("div");
+            qiqiu.className = "qiqiu";
+            qiqiu.setAttribute("step", Math.floor(Math.random() * 8) + 1);
+//            fragment.appendChild(qiqiu);
+//            console.log(fragment);
+            qiqius.push(qiqiu);
+            var randomX = Math.floor(Math.random() * window.innerWidth - 160);
+            //气球在水平方向的范围是0 ~ 浏览器宽度-气球宽度
+            randomX = Math.max(0, randomX);
+            qiqius[i].style.top = window.innerHeight - 160  + "px";
+            qiqius[i].style.left = randomX + "px";
+        document.body.appendChild(qiqiu);
+        }
+//        document.body.appendChild(fragment);
+    }
+    timeId = setInterval(move, 1000 / 60);
+//    setInterval两个问题
+//              1.某些间隔会被跳过
+//              2.多个定时器的代码执行之间的间隔可能会比预期的小
+//    setTimeout(function (){
+//        var a = 2
+//        console.log(a);
+    //                  arguments.callee:函数本身
+//            setTimeout(arguments.callee,50);
+//    },50);
+    
+    //移动模块
+    function  move(){
+            for(var i = 0, len = qiqius.length; i < len; i++) {
+                qiqius[i].style.top = qiqius[i].offsetTop - qiqius[i].getAttribute("step") + "px";
+            }
+    }
+    
+    //事件委托
+    document.body.addEventListener("click", function  (e){
+        if( e.target.className.toLowerCase() === "qiqiu") {
+            boom.call(e.target);
+        }
+    }, false);
+    
+    //气球变小模块
+    function boom(){
+        this.timeId = setInterval(function  (){
+            if (this.offsetWidth < 10) {
+                clearInterval(this.timeId);
+                this.parentNode.removeChild(this);
+                qiqius.splice(qiqius.lastIndexOf(this), 1);
+                console.log(qiqius);
+            }
+            this.step++;
+            this.style.width = this.offsetWidth - 10 + "px";
+            this.style.height = this.offsetHeight - 10 + "px";
+        }.bind(this), 1000 / 30);
+    }
+</script>
